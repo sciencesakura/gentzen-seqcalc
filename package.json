@@ -5,7 +5,7 @@
   "scripts": {
     "clean": "rimraf ./dist",
     "ts:format": "prettier --write src/**/*.ts __tests__/**/*.ts",
-    "ts:lint": "eslint src/**/*.ts __tests__/**/*.ts",
+    "ts:lint": "eslint src/**/*.ts",
     "ts:test": "jest",
     "ts:build": "tsc",
     "test": "run-s ts:format ts:lint ts:test",
