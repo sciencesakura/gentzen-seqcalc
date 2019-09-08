@@ -31,6 +31,22 @@ interface Formula {
     readonly operand2?: Formula;
 }
 
+/**
+ * Provides an equivalence relation.
+ *
+ * @param a the formula to compare
+ * @param b the formula to compare
+ * @return `true` if `a` is equal to `b`, `false` otherwise
+ */
+const fequals: (a: Formula, b: Formula) => boolean = (a: Formula, b: Formula) => {
+    if (a === b) return true;
+    if (a.atomic || b.atomic) return a.identifier === b.identifier;
+    if (a.operator === b.operator) {
+        return fequals(a.operand1!, b.operand1!) && (a.operator === Operator.Not || fequals(a.operand2!, b.operand2!));
+    }
+    return false;
+};
+
 const _varcache = new Map<string, Formula>();
 
 /**
@@ -139,4 +155,4 @@ const not: (a: Formula) => Formula = (a: Formula) => {
     };
 };
 
-export { Operator, Formula, variable, and, or, imply, not };
+export { Operator, Formula, fequals, variable, and, or, imply, not };

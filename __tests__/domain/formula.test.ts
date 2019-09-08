@@ -1,4 +1,4 @@
-import { variable, and, or, imply, not } from '../../src/domain/formula';
+import { fequals, variable, and, or, imply, not } from '../../src/domain/formula';
 
 describe('constructs the formulas', () => {
     it('constructs a propositional variable', () => {
@@ -41,5 +41,27 @@ describe('constructs the formulas', () => {
     it('constructs a complex formula#2', () => {
         const p = not(or(and(not(variable('A')), not(variable('B'))), not(variable('C'))));
         expect(p.toString()).toBe('!((!A && !B) || !C)');
+    });
+});
+
+describe('releations of the formulas', () => {
+    it('fequals#1', () => {
+        const p = variable('A');
+        const actual = fequals(p, p);
+        expect(actual).toBe(true);
+    });
+
+    it('fequals#2', () => {
+        const p = and(not(variable('A')), or(variable('B'), variable('C')));
+        const q = and(not(variable('A')), or(variable('B'), variable('C')));
+        const actual = fequals(p, q);
+        expect(actual).toBe(true);
+    });
+
+    it('fequals#3', () => {
+        const p = and(not(variable('A')), or(variable('B'), variable('C')));
+        const q = and(not(variable('A')), or(variable('X'), variable('C')));
+        const actual = fequals(p, q);
+        expect(actual).toBe(false);
     });
 });
