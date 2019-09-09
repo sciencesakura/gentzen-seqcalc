@@ -1,14 +1,15 @@
-import { Formula } from './formula';
+import { Formula, formcmp } from './formula';
+import { dedupe } from '../util/arrays';
 
 /**
  * Represents the sequent.
  */
 interface Sequent {
     /** Gets the antecedent of this sequent. */
-    readonly antecedent: Array<Formula>;
+    readonly antecedent: ReadonlyArray<Formula>;
 
     /** Gets the succedent of this sequent. */
-    readonly succedent: Array<Formula>;
+    readonly succedent: ReadonlyArray<Formula>;
 }
 
 /**
@@ -18,9 +19,9 @@ interface Sequent {
  * @param succedent the succedent
  * @return the sequent
  */
-const sequent: (antecedent: Array<Formula>, succedent: Array<Formula>) => Sequent = (
-    antecedent: Array<Formula>,
-    succedent: Array<Formula>
+const sequent: (antecedent: ReadonlyArray<Formula>, succedent: ReadonlyArray<Formula>) => Sequent = (
+    antecedent: ReadonlyArray<Formula>,
+    succedent: ReadonlyArray<Formula>
 ) => {
     return {
         antecedent,
@@ -39,4 +40,16 @@ const sequent: (antecedent: Array<Formula>, succedent: Array<Formula>) => Sequen
     };
 };
 
-export { Sequent, sequent };
+/**
+ * Returns the normalized sequent.
+ *
+ * @param s the sequent to normalize
+ * @return the normalized sequent
+ */
+const normalize: (s: Sequent) => Sequent = (s: Sequent) => {
+    const antecedent = dedupe(s.antecedent, formcmp);
+    const succedent = dedupe(s.succedent, formcmp);
+    return sequent(antecedent, succedent);
+};
+
+export { Sequent, sequent, normalize };
