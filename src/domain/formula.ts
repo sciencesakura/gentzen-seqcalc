@@ -18,6 +18,8 @@ interface Formula {
     /** Gets `true` if this formula consists of only one propositional variable, `false` otherwise. */
     readonly atomic: boolean;
 
+    readonly size: number;
+
     /** Gets the identifier of the propositional variable if `atomic` is `true`, undefined otherwise. */
     readonly identifier?: string;
 
@@ -38,13 +40,30 @@ interface Formula {
  * @param b the formula to compare
  * @return `true` if `a` is equal to `b`, `false` otherwise
  */
-const fequals: (a: Formula, b: Formula) => boolean = (a: Formula, b: Formula) => {
+const formequ: (a: Formula, b: Formula) => boolean = (a: Formula, b: Formula) => {
     if (a === b) return true;
     if (a.atomic || b.atomic) return a.identifier === b.identifier;
     if (a.operator === b.operator) {
-        return fequals(a.operand1!, b.operand1!) && (a.operator === Operator.Not || fequals(a.operand2!, b.operand2!));
+        return formequ(a.operand1!, b.operand1!) && (a.operator === Operator.Not || formequ(a.operand2!, b.operand2!));
     }
     return false;
+};
+
+/**
+ * Provides an total order.
+ *
+ * @param a the formula to compare
+ * @param b the formula to compare
+ * @return negative, zero or positive as `a < b`, `a = b` or `a > b`
+ */
+const formcmp: (a: Formula, b: Formula) => number = (a: Formula, b: Formula) => {
+    if (a === b) return 0;
+    const sizecmp = a.size - b.size;
+    if (sizecmp !== 0) return sizecmp;
+    if (a.atomic) return a.identifier!.localeCompare(b.identifier!);
+    const opecmp = a.operator!.localeCompare(b.operator!);
+    if (opecmp !== 0) return opecmp;
+    return a.toString().localeCompare(b.toString());
 };
 
 const _varcache = new Map<string, Formula>();
@@ -60,6 +79,7 @@ const variable: (identifier: string) => Formula = (identifier: string) => {
     if (cache) return cache;
     const v = {
         atomic: true,
+        size: 1,
         identifier,
         toString(): string {
             return identifier;
@@ -91,6 +111,7 @@ const _binaryToString: (operator: Operator, operand1: Formula, operand2: Formula
 const and: (a: Formula, b: Formula) => Formula = (a: Formula, b: Formula) => {
     return {
         atomic: false,
+        size: a.size + b.size + 1,
         operator: Operator.And,
         operand1: a,
         operand2: b,
@@ -110,6 +131,7 @@ const and: (a: Formula, b: Formula) => Formula = (a: Formula, b: Formula) => {
 const or: (a: Formula, b: Formula) => Formula = (a: Formula, b: Formula) => {
     return {
         atomic: false,
+        size: a.size + b.size + 1,
         operator: Operator.Or,
         operand1: a,
         operand2: b,
@@ -129,6 +151,7 @@ const or: (a: Formula, b: Formula) => Formula = (a: Formula, b: Formula) => {
 const imply: (a: Formula, b: Formula) => Formula = (a: Formula, b: Formula) => {
     return {
         atomic: false,
+        size: a.size + b.size + 1,
         operator: Operator.Imply,
         operand1: a,
         operand2: b,
@@ -147,6 +170,7 @@ const imply: (a: Formula, b: Formula) => Formula = (a: Formula, b: Formula) => {
 const not: (a: Formula) => Formula = (a: Formula) => {
     return {
         atomic: false,
+        size: a.size + 1,
         operator: Operator.Not,
         operand1: a,
         toString(): string {
@@ -155,4 +179,4 @@ const not: (a: Formula) => Formula = (a: Formula) => {
     };
 };
 
-export { Operator, Formula, fequals, variable, and, or, imply, not };
+export { Operator, Formula, formequ, formcmp, variable, and, or, imply, not };

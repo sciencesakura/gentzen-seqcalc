@@ -1,4 +1,4 @@
-import { fequals, variable, and, or, imply, not } from '../../src/domain/formula';
+import { formequ, formcmp, variable, and, or, imply, not } from '../../src/domain/formula';
 
 describe('constructs the formulas', () => {
     it('constructs a propositional variable', () => {
@@ -45,23 +45,65 @@ describe('constructs the formulas', () => {
 });
 
 describe('releations of the formulas', () => {
-    it('fequals#1', () => {
+    it('equal#1', () => {
         const p = variable('A');
-        const actual = fequals(p, p);
+        const actual = formequ(p, p);
         expect(actual).toBe(true);
     });
 
-    it('fequals#2', () => {
+    it('equal#2', () => {
         const p = and(not(variable('A')), or(variable('B'), variable('C')));
         const q = and(not(variable('A')), or(variable('B'), variable('C')));
-        const actual = fequals(p, q);
+        const actual = formequ(p, q);
         expect(actual).toBe(true);
     });
 
-    it('fequals#3', () => {
+    it('equal#3', () => {
         const p = and(not(variable('A')), or(variable('B'), variable('C')));
         const q = and(not(variable('A')), or(variable('X'), variable('C')));
-        const actual = fequals(p, q);
+        const actual = formequ(p, q);
         expect(actual).toBe(false);
+    });
+
+    it('compare#1', () => {
+        const p = variable('A');
+        const q = variable('B');
+        const actual = formcmp(p, q);
+        expect(actual).toBeLessThan(0);
+    });
+
+    it('compare#2', () => {
+        const p = variable('A');
+        const q = variable('A');
+        const actual = formcmp(p, q);
+        expect(actual).toBe(0);
+    });
+
+    it('compare#3', () => {
+        const p = variable('B');
+        const q = variable('A');
+        const actual = formcmp(p, q);
+        expect(actual).toBeGreaterThan(0);
+    });
+
+    it('compare#4', () => {
+        const p = not(variable('C'));
+        const q = and(variable('A'), variable('A'));
+        const actual = formcmp(p, q);
+        expect(actual).toBeLessThan(0);
+    });
+
+    it('compare#5', () => {
+        const p = and(variable('A'), variable('B'));
+        const q = or(variable('A'), variable('B'));
+        const actual = formcmp(p, q);
+        expect(actual).toBeLessThan(0);
+    });
+
+    it('compare#6', () => {
+        const p = and(variable('A'), variable('C'));
+        const q = and(variable('A'), variable('B'));
+        const actual = formcmp(p, q);
+        expect(actual).toBeGreaterThan(0);
     });
 });
