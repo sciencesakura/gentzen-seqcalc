@@ -22,4 +22,21 @@ const dedupe: <T>(array: ReadonlyArray<T>, comparator: (a: T, b: T) => number) =
     return newArray;
 };
 
-export { dedupe };
+/**
+ * Returns the index of the last element in the array that satisfies the given predicate.
+ *
+ * @param array the array
+ * @param predicate the predicate to apply to each element to find
+ * @return the index of the last element in the array that satisfies `predicate`, or `-1` if not found
+ */
+const findLastIndex: <T>(array: ReadonlyArray<T>, predicate: (e: T) => boolean) => number = <T>(
+    array: ReadonlyArray<T>,
+    predicate: (e: T) => boolean
+) => {
+    for (let i = array.length - 1; 0 <= i; i--) {
+        if (predicate(array[i])) return i;
+    }
+    return -1;
+};
+
+export { dedupe, findLastIndex };

@@ -1,109 +1,77 @@
-import { formequ, formcmp, variable, and, or, imply, not } from '../../src/domain/formula';
+import { formcmp, variable, and, or, imply, not } from '../../src/domain/formula';
 
-describe('constructs the formulas', () => {
-    it('constructs a propositional variable', () => {
-        const p = variable('A');
-        expect(p.toString()).toBe('A');
-    });
-
-    it('constructs a conjunction', () => {
-        const p = variable('A');
-        const q = variable('B');
-        const r = and(p, q);
-        expect(r.toString()).toBe('A && B');
-    });
-
-    it('constructs a disjunction', () => {
-        const p = variable('A');
-        const q = variable('B');
-        const r = or(p, q);
-        expect(r.toString()).toBe('A || B');
-    });
-
-    it('constructs a implication', () => {
-        const p = variable('A');
-        const q = variable('B');
-        const r = imply(p, q);
-        expect(r.toString()).toBe('A -> B');
-    });
-
-    it('constructs a negation', () => {
-        const p = variable('A');
-        const r = not(p);
-        expect(r.toString()).toBe('!A');
-    });
-
-    it('constructs a complex formula#1', () => {
-        const p = or(and(variable('A'), variable('B')), variable('C'));
-        expect(p.toString()).toBe('(A && B) || C');
-    });
-
-    it('constructs a complex formula#2', () => {
-        const p = not(or(and(not(variable('A')), not(variable('B'))), not(variable('C'))));
-        expect(p.toString()).toBe('!((!A && !B) || !C)');
-    });
+test('constructs a formula: `A`', () => {
+    const a = variable('A');
+    expect(a.toString()).toBe('A');
 });
 
-describe('releations of the formulas', () => {
-    it('equal#1', () => {
-        const p = variable('A');
-        const actual = formequ(p, p);
-        expect(actual).toBe(true);
-    });
+test('constructs a formula: `A && B`', () => {
+    const a = variable('A');
+    const b = variable('B');
+    const f = and(a, b);
+    expect(f.toString()).toBe('A && B');
+});
 
-    it('equal#2', () => {
-        const p = and(not(variable('A')), or(variable('B'), variable('C')));
-        const q = and(not(variable('A')), or(variable('B'), variable('C')));
-        const actual = formequ(p, q);
-        expect(actual).toBe(true);
-    });
+test('constructs a formula: `A || B`', () => {
+    const a = variable('A');
+    const b = variable('B');
+    const f = or(a, b);
+    expect(f.toString()).toBe('A || B');
+});
 
-    it('equal#3', () => {
-        const p = and(not(variable('A')), or(variable('B'), variable('C')));
-        const q = and(not(variable('A')), or(variable('X'), variable('C')));
-        const actual = formequ(p, q);
-        expect(actual).toBe(false);
-    });
+test('constructs a formula: `A -> B`', () => {
+    const a = variable('A');
+    const b = variable('B');
+    const f = imply(a, b);
+    expect(f.toString()).toBe('A -> B');
+});
 
-    it('compare#1', () => {
-        const p = variable('A');
-        const q = variable('B');
-        const actual = formcmp(p, q);
-        expect(actual).toBeLessThan(0);
-    });
+test('constructs a formula: `!A`', () => {
+    const a = variable('A');
+    const f = not(a);
+    expect(f.toString()).toBe('!A');
+});
 
-    it('compare#2', () => {
-        const p = variable('A');
-        const q = variable('A');
-        const actual = formcmp(p, q);
-        expect(actual).toBe(0);
-    });
+test('constructs a formula: `(A && B) || C', () => {
+    const f = or(and(variable('A'), variable('B')), variable('C'));
+    expect(f.toString()).toBe('(A && B) || C');
+});
 
-    it('compare#3', () => {
-        const p = variable('B');
-        const q = variable('A');
-        const actual = formcmp(p, q);
-        expect(actual).toBeGreaterThan(0);
-    });
+test('constructs a formula: `!((!A && !B) || !C)`', () => {
+    const f = not(or(and(not(variable('A')), not(variable('B'))), not(variable('C'))));
+    expect(f.toString()).toBe('!((!A && !B) || !C)');
+});
 
-    it('compare#4', () => {
-        const p = not(variable('C'));
-        const q = and(variable('A'), variable('A'));
-        const actual = formcmp(p, q);
-        expect(actual).toBeLessThan(0);
-    });
+test('`A` < `B`', () => {
+    const a = variable('A');
+    const b = variable('B');
+    const actual = formcmp(a, b);
+    expect(actual).toBeLessThan(0);
+});
 
-    it('compare#5', () => {
-        const p = and(variable('A'), variable('B'));
-        const q = or(variable('A'), variable('B'));
-        const actual = formcmp(p, q);
-        expect(actual).toBeLessThan(0);
-    });
+test('`A` = `A`', () => {
+    const a = variable('A');
+    const actual = formcmp(a, a);
+    expect(actual).toBe(0);
+});
 
-    it('compare#6', () => {
-        const p = and(variable('A'), variable('C'));
-        const q = and(variable('A'), variable('B'));
-        const actual = formcmp(p, q);
-        expect(actual).toBeGreaterThan(0);
-    });
+test('`B` > `A`', () => {
+    const a = variable('A');
+    const b = variable('B');
+    const actual = formcmp(b, a);
+    expect(actual).toBeGreaterThan(0);
+});
+
+test('`X` < `A && A`', () => {
+    const x = variable('X');
+    const f = and(variable('A'), variable('A'));
+    const actual = formcmp(x, f);
+    expect(actual).toBeLessThan(0);
+});
+
+test('`A && B` > `A && A`', () => {
+    const f1 = and(variable('A'), variable('B'));
+    const f2 = and(variable('A'), variable('A'));
+    const actual = formcmp(f1, f2);
+    expect(actual).toBeGreaterThan(0);
 });
