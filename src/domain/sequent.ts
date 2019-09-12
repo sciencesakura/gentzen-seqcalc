@@ -2,38 +2,40 @@ import { Operator, Formula, formcmp } from './formula';
 import { dedupe, findLastIndex } from '../util/arrays';
 
 /**
+ * Represents the sequence of zero or more formulas.
+ */
+type Formulas = ReadonlyArray<Formula>;
+
+/**
  * Represents the sequent.
  */
 interface Sequent {
-    /** Gets the antecedent of this sequent. */
-    readonly antecedent: ReadonlyArray<Formula>;
+    /** Gets the formula sequence for antecedents. */
+    readonly antecedents: Formulas;
 
-    /** Gets the succedent of this sequent. */
-    readonly succedent: ReadonlyArray<Formula>;
+    /** Gets the formula sequence for succedents. */
+    readonly succedents: Formulas;
 }
 
 /**
  * Return the sequent.
  *
- * @param antecedent the antecedent
- * @param succedent the succedent
+ * @param antecedents the formula sequence for antecedents
+ * @param succedents the formula sequence for succedents
  * @return the sequent
  */
-const sequent: (antecedent: ReadonlyArray<Formula>, succedent: ReadonlyArray<Formula>) => Sequent = (
-    antecedent: ReadonlyArray<Formula>,
-    succedent: ReadonlyArray<Formula>
-) => {
+const sequent: (antecedents: Formulas, succedents: Formulas) => Sequent = (antecedents: Formulas, succedents: Formulas) => {
     return {
-        antecedent,
-        succedent,
+        antecedents,
+        succedents,
         toString(): string {
             let str = '';
-            if (antecedent.length !== 0) {
-                str = `${antecedent.join(', ')} `;
+            if (antecedents.length !== 0) {
+                str = `${antecedents.join(', ')} `;
             }
             str += '|-';
-            if (succedent.length !== 0) {
-                str += ` ${succedent.join(', ')}`;
+            if (succedents.length !== 0) {
+                str += ` ${succedents.join(', ')}`;
             }
             return str;
         }
@@ -47,85 +49,142 @@ const sequent: (antecedent: ReadonlyArray<Formula>, succedent: ReadonlyArray<For
  * @return the normalized sequent
  */
 const normalize: (s: Sequent) => Sequent = (s: Sequent) => {
-    const antecedent = dedupe(s.antecedent, formcmp);
-    const succedent = dedupe(s.succedent, formcmp);
+    const antecedent = dedupe(s.antecedents, formcmp);
+    const succedent = dedupe(s.succedents, formcmp);
     return sequent(antecedent, succedent);
 };
 
-const _isNonAtomic: (f: Formula) => boolean = (f: Formula) => !f.atomic;
+/**
+ * Represents the disassembly target.
+ */
+interface DisassemblyTarget {
+    /** Gets the side that the target formula belongs. */
+    readonly side: 'L' | 'R';
 
-const _findPrincipal: (s: Sequent) => [Formula, number, ReadonlyArray<Formula>, 0 | 1] | null = (s: Sequent) => {
-    let i = findLastIndex(s.antecedent, _isNonAtomic);
-    if (i !== -1) return [s.antecedent[i], i, s.antecedent, 1];
-    i = findLastIndex(s.succedent, _isNonAtomic);
-    return i === -1 ? null : [s.succedent[i], i, s.succedent, 0];
+    /** Gets the target formula. */
+    readonly formula: Formula;
+
+    /** Gets the formula sequence that excluded the target formula. */
+    readonly excluded: Formulas;
+}
+
+/**
+ * Returns the next disassembly target, or `null` if not found.
+ */
+const disassemblyTarget: (s: Sequent) => DisassemblyTarget | null = (s: Sequent) => {
+    let side: 'L' | 'R' = 'L';
+    let sequence = s.antecedents;
+    let index = findLastIndex(sequence, f => !f.atomic);
+    if (index === -1) {
+        side = 'R';
+        sequence = s.succedents;
+        index = findLastIndex(sequence, f => !f.atomic);
+    }
+    if (index === -1) return null;
+    const excluded = sequence.filter((_, i) => i !== index);
+    return {
+        side,
+        formula: sequence[index],
+        excluded
+    };
 };
 
-const disassemble: (s: Sequent) => [Sequent, Sequent?] | null = (s: Sequent) => {
-    const p = _findPrincipal(s);
-    if (!p) return null;
-    const principal = p[0];
-    const removed = p[2].filter((_, index) => index !== p[1]);
-    let ss: [Sequent, Sequent?];
-    switch (principal.operator) {
-        case Operator.And:
-            if (p[3]) {
-                removed.push(principal.operand1!);
-                removed.push(principal.operand2!);
-                ss = [sequent(removed, s.succedent)];
-            } else {
-                const suc2 = removed.slice();
-                suc2.push(principal.operand2!);
-                removed.push(principal.operand1!);
-                ss = [sequent(s.antecedent, removed), sequent(s.antecedent, suc2)];
-            }
-            break;
-        case Operator.Or:
-            if (p[3]) {
-                const ant2 = removed.slice();
-                ant2.push(principal.operand2!);
-                removed.push(principal.operand1!);
-                ss = [sequent(removed, s.succedent), sequent(ant2, s.succedent)];
-            } else {
-                removed.push(principal.operand1!);
-                removed.push(principal.operand2!);
-                ss = [sequent(s.antecedent, removed)];
-            }
-            break;
-        case Operator.Imply:
-            if (p[3]) {
-                const suc1 = s.succedent.slice();
-                const ant2 = removed.slice();
-                suc1.push(principal.operand1!);
-                ant2.push(principal.operand2!);
-                ss = [sequent(removed, suc1), sequent(ant2, s.succedent)];
-            } else {
-                const ant1 = s.antecedent.slice();
-                ant1.push(principal.operand1!);
-                removed.push(principal.operand2!);
-                ss = [sequent(ant1, removed)];
-            }
-            break;
-        case Operator.Not:
-            if (p[3]) {
-                const suc1 = s.succedent.slice();
-                suc1.push(principal.operand1!);
-                ss = [sequent(removed, suc1)];
-            } else {
-                const ant1 = s.antecedent.slice();
-                ant1.push(principal.operand1!);
-                ss = [sequent(ant1, removed)];
-            }
-            break;
+interface DisassemblyResult {
+    readonly sequent1: Sequent;
+
+    readonly sequent2?: Sequent;
+}
+
+const disassemblyResult: (s1: Sequent, s2?: Sequent) => DisassemblyResult = (s1: Sequent, s2?: Sequent) => {
+    if (s2)
+        return {
+            sequent1: normalize(s1),
+            sequent2: normalize(s2)
+        };
+    return {
+        sequent1: normalize(s1)
+    };
+};
+
+const disassembleLeft: (s: Sequent, target: DisassemblyTarget) => DisassemblyResult = (
+    s: Sequent,
+    target: DisassemblyTarget
+) => {
+    const formula = target.formula;
+    const excluded = target.excluded.slice();
+    switch (formula.operator) {
+        case Operator.And: {
+            excluded.push(formula.operand1!);
+            excluded.push(formula.operand2!);
+            return disassemblyResult(sequent(excluded, s.succedents));
+        }
+        case Operator.Or: {
+            const ant2 = excluded.slice();
+            ant2.push(formula.operand2!);
+            excluded.push(formula.operand1!);
+            return disassemblyResult(sequent(excluded, s.succedents), sequent(ant2, s.succedents));
+        }
+        case Operator.Imply: {
+            const suc1 = s.succedents.slice();
+            const ant2 = excluded.slice();
+            suc1.push(formula.operand1!);
+            ant2.push(formula.operand2!);
+            return disassemblyResult(sequent(excluded, suc1), sequent(ant2, s.succedents));
+        }
+        case Operator.Not: {
+            const suc1 = s.succedents.slice();
+            suc1.push(formula.operand1!);
+            return disassemblyResult(sequent(excluded, suc1));
+        }
         default:
-            throw new Error(`Unsupported operator: ${principal.operator}`);
+            throw new Error(`Unsupported operator: ${formula.operator}`);
     }
-    const s1 = normalize(ss[0]);
-    if (ss[1]) {
-        const s2 = normalize(ss[1]);
-        return [s1, s2];
+};
+
+const disassembleRight: (s: Sequent, target: DisassemblyTarget) => DisassemblyResult = (
+    s: Sequent,
+    target: DisassemblyTarget
+) => {
+    const formula = target.formula;
+    const excluded = target.excluded.slice();
+    switch (formula.operator!) {
+        case Operator.And: {
+            const suc2 = excluded.slice();
+            suc2.push(formula.operand2!);
+            excluded.push(formula.operand1!);
+            return disassemblyResult(sequent(s.antecedents, excluded), sequent(s.antecedents, suc2));
+        }
+        case Operator.Or: {
+            excluded.push(formula.operand1!);
+            excluded.push(formula.operand2!);
+            return disassemblyResult(sequent(s.antecedents, excluded));
+        }
+        case Operator.Imply: {
+            const ant1 = s.antecedents.slice();
+            ant1.push(formula.operand1!);
+            excluded.push(formula.operand2!);
+            return disassemblyResult(sequent(ant1, excluded));
+        }
+        case Operator.Not: {
+            const ant1 = s.antecedents.slice();
+            ant1.push(formula.operand1!);
+            return disassemblyResult(sequent(ant1, excluded));
+        }
+        default:
+            throw new Error(`Unsupported operator: ${formula.operator}`);
     }
-    return [s1];
+};
+
+/**
+ * Disassembles the sequent and returns disassembled one or two sequents, or `null` if could not disassemble.
+ *
+ * @param s the sequent to disassemble
+ * @return disassembled one or two sequents, or `null` if could not disassemble
+ */
+const disassemble: (s: Sequent) => DisassemblyResult | null = (s: Sequent) => {
+    const target = disassemblyTarget(s);
+    if (!target) return null;
+    return target.side === 'L' ? disassembleLeft(s, target) : disassembleRight(s, target);
 };
 
 export { Sequent, sequent, normalize, disassemble };
