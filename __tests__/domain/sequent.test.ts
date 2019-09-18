@@ -1,5 +1,5 @@
 import { variable, and, or, imply, not } from '../../src/domain/formula';
-import { sequent, disassemble } from '../../src/domain/sequent';
+import { sequent, decompose } from '../../src/domain/sequent';
 
 const a = variable('A');
 const b = variable('B');
@@ -23,58 +23,102 @@ test('constructs a sequent: `A |-`', () => {
     expect(s.toString()).toBe('A |-');
 });
 
-test('disassembles (&&R): `X |- Y, A && B, Z ==> X |- A, Y, Z; X |- B, Y, Z`', () => {
+test('decomposes (&&R): `X |- Y, A && B, Z ==> X |- A, Y, Z; X |- B, Y, Z`', () => {
     const s = sequent([x], [y, and(a, b), z]);
-    const actual = disassemble(s);
-    expect(actual!.sequent1.toString()).toBe('X |- A, Y, Z');
-    expect(actual!.sequent2!.toString()).toBe('X |- B, Y, Z');
+    const actual = decompose(s);
+    expect(actual.sequent.toString()).toBe('X |- Y, A && B, Z');
+    expect(actual.child1!.sequent.toString()).toBe('X |- A, Y, Z');
+    expect(actual.child1!.child1).toBeUndefined();
+    expect(actual.child1!.child2).toBeUndefined();
+    expect(actual.child2!.sequent.toString()).toBe('X |- B, Y, Z');
+    expect(actual.child2!.child1).toBeUndefined();
+    expect(actual.child2!.child2).toBeUndefined();
 });
 
-test('disassembles (&&L): `X, A && B, Y |- Z ==> A, B, X, Y |- Z`', () => {
+test('decomposes (&&L): `X, A && B, Y |- Z ==> A, B, X, Y |- Z`', () => {
     const s = sequent([x, and(a, b), y], [z]);
-    const actual = disassemble(s);
-    expect(actual!.sequent1.toString()).toBe('A, B, X, Y |- Z');
-    expect(actual!.sequent2).toBeUndefined();
+    const actual = decompose(s);
+    expect(actual.sequent.toString()).toBe('X, A && B, Y |- Z');
+    expect(actual.child1!.sequent.toString()).toBe('A, B, X, Y |- Z');
+    expect(actual.child1!.child1).toBeUndefined();
+    expect(actual.child1!.child2).toBeUndefined();
+    expect(actual.child2).toBeUndefined();
 });
 
-test('disassembles (||R): `X |- Y, A || B, Z ==> X |- A, B, Y, Z`', () => {
+test('decomposes (||R): `X |- Y, A || B, Z ==> X |- A, B, Y, Z`', () => {
     const s = sequent([x], [y, or(a, b), z]);
-    const actual = disassemble(s);
-    expect(actual!.sequent1.toString()).toBe('X |- A, B, Y, Z');
-    expect(actual!.sequent2).toBeUndefined();
+    const actual = decompose(s);
+    expect(actual.sequent.toString()).toBe('X |- Y, A || B, Z');
+    expect(actual.child1!.sequent.toString()).toBe('X |- A, B, Y, Z');
+    expect(actual.child1!.child1).toBeUndefined();
+    expect(actual.child1!.child2).toBeUndefined();
+    expect(actual.child2).toBeUndefined();
 });
 
-test('disassembles (||L): `X, A || B, Y |- Z ==> A, X, Y |- Z; B, X, Y |- Z`', () => {
+test('decomposes (||L): `X, A || B, Y |- Z ==> A, X, Y |- Z; B, X, Y |- Z`', () => {
     const s = sequent([x, or(a, b), y], [z]);
-    const actual = disassemble(s);
-    expect(actual!.sequent1.toString()).toBe('A, X, Y |- Z');
-    expect(actual!.sequent2!.toString()).toBe('B, X, Y |- Z');
+    const actual = decompose(s);
+    expect(actual.sequent.toString()).toBe('X, A || B, Y |- Z');
+    expect(actual.child1!.sequent.toString()).toBe('A, X, Y |- Z');
+    expect(actual.child1!.child1).toBeUndefined();
+    expect(actual.child1!.child2).toBeUndefined();
+    expect(actual.child2!.sequent.toString()).toBe('B, X, Y |- Z');
+    expect(actual.child2!.child1).toBeUndefined();
+    expect(actual.child2!.child2).toBeUndefined();
 });
 
-test('disassembles (->R): `X |- Y, A -> B, Z ==> A, X |- B, Y, Z`', () => {
+test('decomposes (->R): `X |- Y, A -> B, Z ==> A, X |- B, Y, Z`', () => {
     const s = sequent([x], [y, imply(a, b), z]);
-    const actual = disassemble(s);
-    expect(actual!.sequent1.toString()).toBe('A, X |- B, Y, Z');
-    expect(actual!.sequent2).toBeUndefined();
+    const actual = decompose(s);
+    expect(actual.sequent.toString()).toBe('X |- Y, A -> B, Z');
+    expect(actual.child1!.sequent.toString()).toBe('A, X |- B, Y, Z');
+    expect(actual.child1!.child1).toBeUndefined();
+    expect(actual.child1!.child2).toBeUndefined();
+    expect(actual.child2).toBeUndefined();
 });
 
-test('disassembles (->L): `X, A -> B, Y |- Z ==> X, Y |- A, Z; B, X, Y |- Z`', () => {
+test('decomposes (->L): `X, A -> B, Y |- Z ==> X, Y |- A, Z; B, X, Y |- Z`', () => {
     const s = sequent([x, imply(a, b), y], [z]);
-    const actual = disassemble(s);
-    expect(actual!.sequent1.toString()).toBe('X, Y |- A, Z');
-    expect(actual!.sequent2!.toString()).toBe('B, X, Y |- Z');
+    const actual = decompose(s);
+    expect(actual.sequent.toString()).toBe('X, A -> B, Y |- Z');
+    expect(actual.child1!.sequent.toString()).toBe('X, Y |- A, Z');
+    expect(actual.child1!.child1).toBeUndefined();
+    expect(actual.child1!.child2).toBeUndefined();
+    expect(actual.child2!.sequent.toString()).toBe('B, X, Y |- Z');
+    expect(actual.child2!.child1).toBeUndefined();
+    expect(actual.child2!.child2).toBeUndefined();
 });
 
-test('disassembles (!R): `X |- Y, !A, Z ==> A, X |- Y, Z`', () => {
+test('decomposes (!R): `X |- Y, !A, Z ==> A, X |- Y, Z`', () => {
     const s = sequent([x], [y, not(a), z]);
-    const actual = disassemble(s);
-    expect(actual!.sequent1.toString()).toBe('A, X |- Y, Z');
-    expect(actual!.sequent2).toBeUndefined();
+    const actual = decompose(s);
+    expect(actual.sequent.toString()).toBe('X |- Y, !A, Z');
+    expect(actual.child1!.sequent.toString()).toBe('A, X |- Y, Z');
+    expect(actual.child1!.child1).toBeUndefined();
+    expect(actual.child1!.child2).toBeUndefined();
+    expect(actual.child2).toBeUndefined();
 });
 
-test('disassembles (!L): `X, !A, Y |- Z ==> X, Y |- A, Z`', () => {
+test('decomposes (!L): `X, !A, Y |- Z ==> X, Y |- A, Z`', () => {
     const s = sequent([x, not(a), y], [z]);
-    const actual = disassemble(s);
-    expect(actual!.sequent1.toString()).toBe('X, Y |- A, Z');
-    expect(actual!.sequent2).toBeUndefined();
+    const actual = decompose(s);
+    expect(actual.sequent.toString()).toBe('X, !A, Y |- Z');
+    expect(actual.child1!.sequent.toString()).toBe('X, Y |- A, Z');
+    expect(actual.child1!.child1).toBeUndefined();
+    expect(actual.child1!.child2).toBeUndefined();
+    expect(actual.child2).toBeUndefined();
+});
+
+test('decomposes repeatedly', () => {
+    const s = sequent([not(and(a, b))], [or(not(a), not(b))]);
+    const actual = decompose(s);
+    expect(actual.sequent.toString()).toBe('!(A && B) |- !A || !B');
+    expect(actual.child1!.sequent.toString()).toBe('|- A && B, !A || !B');
+    expect(actual.child1!.child1!.sequent.toString()).toBe('|- !A, !B, A && B');
+    expect(actual.child1!.child1!.child1!.sequent.toString()).toBe('|- A, !A, !B');
+    expect(actual.child1!.child1!.child1!.child1!.sequent.toString()).toBe('B |- A, !A');
+    expect(actual.child1!.child1!.child1!.child1!.child1!.sequent.toString()).toBe('A, B |- A');
+    expect(actual.child1!.child1!.child2!.sequent.toString()).toBe('|- B, !A, !B');
+    expect(actual.child1!.child1!.child2!.child1!.sequent.toString()).toBe('B |- B, !A');
+    expect(actual.child1!.child1!.child2!.child1!.child1!.sequent.toString()).toBe('A, B |- B');
 });
