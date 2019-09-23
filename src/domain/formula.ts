@@ -18,6 +18,7 @@ interface Formula {
     /** Gets `true` if this formula consists of only one propositional variable, `false` otherwise. */
     readonly atomic: boolean;
 
+    /** Gets the number of variables and operators in this formula. */
     readonly size: number;
 
     /** Gets the identifier of the propositional variable if `atomic` is `true`, undefined otherwise. */
@@ -73,16 +74,19 @@ const variable: (identifier: string) => Formula = (identifier: string) => {
     return v;
 };
 
-const _binaryToString: (operator: Operator, operand1: Formula, operand2: Formula) => string = (
-    operator: Operator,
-    operand1: Formula,
-    operand2: Formula
-) => {
-    return (
-        (operand1.atomic || operand1.operator === Operator.Not ? operand1 : `(${operand1})`) +
-        ` ${operator} ` +
-        (operand2.atomic || operand2.operator === Operator.Not ? operand2 : `(${operand2})`)
-    );
+const _binconn: (op: Operator, a: Formula, b: Formula) => Formula = (op: Operator, a: Formula, b: Formula) => {
+    return {
+        atomic: false,
+        size: a.size + b.size + 1,
+        operator: op,
+        operand1: a,
+        operand2: b,
+        toString(): string {
+            const opd1 = a.atomic || a.operator === Operator.Not ? a : `(${a})`;
+            const opd2 = b.atomic || b.operator === Operator.Not ? b : `(${b})`;
+            return `${opd1} ${op} ${opd2}`;
+        }
+    };
 };
 
 /**
@@ -93,16 +97,7 @@ const _binaryToString: (operator: Operator, operand1: Formula, operand2: Formula
  * @return the formula that means `a && b`
  */
 const and: (a: Formula, b: Formula) => Formula = (a: Formula, b: Formula) => {
-    return {
-        atomic: false,
-        size: a.size + b.size + 1,
-        operator: Operator.And,
-        operand1: a,
-        operand2: b,
-        toString(): string {
-            return _binaryToString(Operator.And, a, b);
-        }
-    };
+    return _binconn(Operator.And, a, b);
 };
 
 /**
@@ -113,16 +108,7 @@ const and: (a: Formula, b: Formula) => Formula = (a: Formula, b: Formula) => {
  * @return the formula that means `a || b`
  */
 const or: (a: Formula, b: Formula) => Formula = (a: Formula, b: Formula) => {
-    return {
-        atomic: false,
-        size: a.size + b.size + 1,
-        operator: Operator.Or,
-        operand1: a,
-        operand2: b,
-        toString(): string {
-            return _binaryToString(Operator.Or, a, b);
-        }
-    };
+    return _binconn(Operator.Or, a, b);
 };
 
 /**
@@ -133,16 +119,7 @@ const or: (a: Formula, b: Formula) => Formula = (a: Formula, b: Formula) => {
  * @return the formula that means `a -> b`
  */
 const imply: (a: Formula, b: Formula) => Formula = (a: Formula, b: Formula) => {
-    return {
-        atomic: false,
-        size: a.size + b.size + 1,
-        operator: Operator.Imply,
-        operand1: a,
-        operand2: b,
-        toString(): string {
-            return _binaryToString(Operator.Imply, a, b);
-        }
-    };
+    return _binconn(Operator.Imply, a, b);
 };
 
 /**
@@ -158,7 +135,7 @@ const not: (a: Formula) => Formula = (a: Formula) => {
         operator: Operator.Not,
         operand1: a,
         toString(): string {
-            return a.atomic ? `!${a}` : `!(${a})`;
+            return a.atomic || a.operator === Operator.Not ? `!${a}` : `!(${a})`;
         }
     };
 };
