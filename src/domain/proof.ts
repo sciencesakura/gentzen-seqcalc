@@ -82,6 +82,56 @@ const _isInitial: (s: Sequent) => boolean = (s: Sequent) => {
     return false;
 };
 
+const _pad: (s: string, len: number) => string = (s: string, len: number) => {
+    const padsize = len - s.length;
+    if (padsize <= 0) return s;
+    const halfsize = Math.floor(padsize / 2);
+    let pad = '';
+    for (let i = 0; i < halfsize; i++) pad += ' ';
+    return padsize % 2 === 0 ? `${pad}${s}${pad}` : `${pad}${s}${pad} `;
+};
+
+const _bar: (len: number) => string = (len: number) => {
+    let bar = '';
+    for (let i = 0; i < len; i++) bar += '-';
+    return bar;
+};
+
+const stimes: (s: string, n: number) => string = (s: string, n: number) => {
+    let str = '';
+    for (let i = 0; i < n; i++) str += s;
+    return str;
+};
+
+const _tostr: (node: ProofTreeNode) => Array<string> = (node: ProofTreeNode) => {
+    const sequent = node.sequent.toString();
+    if (!node.left) return [sequent];
+    const left = _tostr(node.left);
+    const lwidth = left[0].length;
+    if (node.right) {
+        const right = _tostr(node.right);
+        const rwidth = right[0].length;
+        const width = Math.max(sequent.length, lwidth + rwidth + 2);
+        const sqary = [_pad(sequent, width), _bar(width)];
+        const childHeight = Math.max(left.length, right.length);
+        for (let i = 0; i < childHeight; i++) {
+            const ls = left[i];
+            const rs = right[i];
+            if (ls && rs) {
+                sqary.push(_pad(`${ls}  ${rs}`, width));
+            } else if (ls) {
+                sqary.push(_pad(`${ls}  ${stimes(' ', rwidth)}`, width));
+            } else {
+                sqary.push(_pad(`${stimes(' ', lwidth)}  ${rs}`, width));
+            }
+        }
+        return sqary;
+    } else {
+        const width = Math.max(sequent.length, lwidth);
+        return [_pad(sequent, width), _bar(width), ...left.map(s => _pad(s, width))];
+    }
+};
+
 /**
  * Proves the given sequent.
  */
@@ -116,7 +166,10 @@ const prove: (sequent: Sequent) => Proof = (sequent: Sequent) => {
             provable,
             figure: {
                 height: maxLv + 1,
-                root
+                root,
+                toString(): string {
+                    return _tostr(this.root).reverse().join('\n');
+                }
             }
         };
     } else {
