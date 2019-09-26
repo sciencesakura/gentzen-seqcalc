@@ -5,16 +5,16 @@ interface Formula {
     /** Gets `true` if this formula consists of only one propositional variable, `false` otherwise. */
     readonly atomic: boolean;
 
-    /** Gets the identifier of the propositional variable if `atomic` is `true`, undefined otherwise. */
+    /** Gets the identifier of the propositional variable if `atomic` is `true`, `undefined` otherwise. */
     readonly identifier?: string;
 
-    /** Gets the operator if `atomic` is `false`, undefined otherwise. */
+    /** Gets the operator if `atomic` is `false`, `undefined` otherwise. */
     readonly operator?: Operator;
 
-    /** Gets the first operand if `atomic` is `false`, undefined otherwise. */
+    /** Gets the first operand if `atomic` is `false`, `undefined` otherwise. */
     readonly operand1?: Formula;
 
-    /** Gets the second operand if `atomic` is `false` and `operator` is binary, undefined otherwise. */
+    /** Gets the second operand if `atomic` is `false` and `operator` is binary operator, `undefined` otherwise. */
     readonly operand2?: Formula;
 }
 
@@ -34,10 +34,10 @@ enum Operator {
 const _varcache = new Map<string, Formula>();
 
 /**
- * Returns the formula that consists of a propositional variable.
+ * Returns the formula that consists of only one propositional variable.
  *
  * @param identifier the identifier of the propositional variable
- * @return the formula that consists of a propositional variable
+ * @return the formula that consists of only one propositional variable
  */
 const variable: (identifier: string) => Formula = (identifier: string) => {
     const cache = _varcache.get(identifier);
@@ -72,8 +72,8 @@ const _binconn: (op: Operator, a: Formula, b: Formula) => Formula = (op: Operato
 /**
  * Returns the formula that means `a && b`.
  *
- * @param a first operand
- * @param b second operand
+ * @param a the first operand
+ * @param b the second operand
  * @return the formula that means `a && b`
  */
 const and: (a: Formula, b: Formula) => Formula = (a: Formula, b: Formula) => {
@@ -83,8 +83,8 @@ const and: (a: Formula, b: Formula) => Formula = (a: Formula, b: Formula) => {
 /**
  * Returns the formula that means `a || b`.
  *
- * @param a first operand
- * @param b second operand
+ * @param a the first operand
+ * @param b the second operand
  * @return the formula that means `a || b`
  */
 const or: (a: Formula, b: Formula) => Formula = (a: Formula, b: Formula) => {
@@ -94,8 +94,8 @@ const or: (a: Formula, b: Formula) => Formula = (a: Formula, b: Formula) => {
 /**
  * Returns the formula that means `a -> b`.
  *
- * @param a first operand
- * @param b second operand
+ * @param a the first operand
+ * @param b the second operand
  * @return the formula that means `a -> b`
  */
 const imply: (a: Formula, b: Formula) => Formula = (a: Formula, b: Formula) => {
@@ -105,7 +105,7 @@ const imply: (a: Formula, b: Formula) => Formula = (a: Formula, b: Formula) => {
 /**
  * Returns the formula that means `!a`.
  *
- * @param a first operand
+ * @param a the operand
  * @return the formula that means `!a`
  */
 const not: (a: Formula) => Formula = (a: Formula) => {
@@ -124,7 +124,7 @@ const not: (a: Formula) => Formula = (a: Formula) => {
  *
  * @param a the formula to compare
  * @param b the formula to compare
- * @return `true` if two formulas is same, `false` otherwise
+ * @return `true` if two formulas are same, `false` otherwise
  */
 const formequ: (a: Formula, b: Formula) => boolean = (a: Formula, b: Formula) => {
     return (

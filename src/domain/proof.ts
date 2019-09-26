@@ -1,28 +1,43 @@
 import { Operator, formequ } from './formula';
 import { Sequent, sequent } from './sequent';
+import { times } from '../util/text';
 
 /**
  * Represents a proof.
  */
 interface Proof {
+    /** Gets whether the sequent was proved or not. */
     readonly provable: boolean;
 
+    /** Gets the proof figure if `provable` is `true`, `undefined` otherwise. */
     readonly figure?: ProofTree;
 }
 
+/**
+ * Represents a proof figure as tree structure.
+ */
 interface ProofTree {
+    /** Gets the height of this tree. */
     readonly height: number;
 
+    /** Gets the root node of this tree. */
     readonly root: ProofTreeNode;
 }
 
+/**
+ * Represents a node of `ProofTree`.
+ */
 interface ProofTreeNode {
+    /** Gets the level of this node. */
     readonly level: number;
 
+    /** Gets the sequent. */
     readonly sequent: Sequent;
 
+    /** Gets the reference to left child node. */
     readonly left?: ProofTreeNode;
 
+    /** Gets the reference to right child node. */
     readonly right?: ProofTreeNode;
 }
 
@@ -91,18 +106,6 @@ const _pad: (s: string, len: number) => string = (s: string, len: number) => {
     return padsize % 2 === 0 ? `${pad}${s}${pad}` : `${pad}${s}${pad} `;
 };
 
-const _bar: (len: number) => string = (len: number) => {
-    let bar = '';
-    for (let i = 0; i < len; i++) bar += '-';
-    return bar;
-};
-
-const stimes: (s: string, n: number) => string = (s: string, n: number) => {
-    let str = '';
-    for (let i = 0; i < n; i++) str += s;
-    return str;
-};
-
 const _tostr: (node: ProofTreeNode) => Array<string> = (node: ProofTreeNode) => {
     const sequent = node.sequent.toString();
     if (!node.left) return [sequent];
@@ -112,7 +115,7 @@ const _tostr: (node: ProofTreeNode) => Array<string> = (node: ProofTreeNode) => 
         const right = _tostr(node.right);
         const rwidth = right[0].length;
         const width = Math.max(sequent.length, lwidth + rwidth + 2);
-        const sqary = [_pad(sequent, width), _bar(width)];
+        const sqary = [_pad(sequent, width), times('-', width)];
         const childHeight = Math.max(left.length, right.length);
         for (let i = 0; i < childHeight; i++) {
             const ls = left[i];
@@ -120,20 +123,23 @@ const _tostr: (node: ProofTreeNode) => Array<string> = (node: ProofTreeNode) => 
             if (ls && rs) {
                 sqary.push(_pad(`${ls}  ${rs}`, width));
             } else if (ls) {
-                sqary.push(_pad(`${ls}  ${stimes(' ', rwidth)}`, width));
+                sqary.push(_pad(`${ls}  ${times(' ', rwidth)}`, width));
             } else {
-                sqary.push(_pad(`${stimes(' ', lwidth)}  ${rs}`, width));
+                sqary.push(_pad(`${times(' ', lwidth)}  ${rs}`, width));
             }
         }
         return sqary;
     } else {
         const width = Math.max(sequent.length, lwidth);
-        return [_pad(sequent, width), _bar(width), ...left.map(s => _pad(s, width))];
+        return [_pad(sequent, width), times('-', width), ...left.map(s => _pad(s, width))];
     }
 };
 
 /**
- * Proves the given sequent.
+ * Proves the specified sequent.
+ *
+ * @param sequent the sequent to prove
+ * @return the proof result
  */
 const prove: (sequent: Sequent) => Proof = (sequent: Sequent) => {
     let provable = true;
@@ -168,7 +174,9 @@ const prove: (sequent: Sequent) => Proof = (sequent: Sequent) => {
                 height: maxLv + 1,
                 root,
                 toString(): string {
-                    return _tostr(this.root).reverse().join('\n');
+                    return _tostr(this.root)
+                        .reverse()
+                        .join('\n');
                 }
             }
         };
