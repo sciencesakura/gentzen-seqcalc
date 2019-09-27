@@ -36,7 +36,9 @@ enum TokenType {
 
     ParenClose,
 
-    Tee
+    Tee,
+
+    End
 }
 
 /**
@@ -76,7 +78,7 @@ const tokenize: (str: string) => TokenList = (str: string) => {
                 continue;
         }
         if (isAlpha(c)) {
-            while (isAlpha(str[p++]));
+            while (p < str.length && isAlpha(str[p])) p++;
             tokens.push({
                 type: TokenType.Variable,
                 position,
@@ -100,6 +102,7 @@ const tokenize: (str: string) => TokenList = (str: string) => {
         }
         throw new SequentParseError(`unexpected character: '${c}`, position);
     }
+    tokens.push({ type: TokenType.End, position: p });
     return tokens;
 };
 

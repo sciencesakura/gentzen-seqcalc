@@ -8,7 +8,7 @@ const b = variable('B');
 test('Proves a sequent: `A |- A`', () => {
     const s = sequent([a], [a]);
     const p = prove(s);
-    expect(p).toEqual({
+    expect(p).toMatchObject({
         provable: true,
         figure: {
             height: 1,
@@ -23,7 +23,7 @@ test('Proves a sequent: `A |- A`', () => {
 test('Proves a sequent: `A |-`', () => {
     const s = sequent([a], []);
     const p = prove(s);
-    expect(p).toEqual({
+    expect(p).toMatchObject({
         provable: false
     });
 });
