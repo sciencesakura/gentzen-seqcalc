@@ -30,6 +30,8 @@ enum TokenType {
 
     Not,
 
+    Comma,
+
     ParenOpen,
 
     ParenClose,
@@ -85,6 +87,9 @@ const tokenize: (str: string) => TokenList = (str: string) => {
         switch (c) {
             case Operator.Not:
                 tokens.push({ type: TokenType.Not, position });
+                continue;
+            case ',':
+                tokens.push({ type: TokenType.Comma, position });
                 continue;
             case '(':
                 tokens.push({ type: TokenType.ParenOpen, position });
