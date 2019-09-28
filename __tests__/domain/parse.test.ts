@@ -55,6 +55,11 @@ test('parses a sequent: `!A, !(A && B), !!A, !(!A && !B) |-`', () => {
     expect(s.toString()).toBe('!A, !(A && B), !!A, !(!A && !B) |-');
 });
 
+test('parses a sequent: `A && B && C, A || B || C, A -> B -> C |-`', () => {
+    const s = parse('A && B && C, A || B || C, A -> B -> C |-');
+    expect(s.toString()).toBe('(A && B) && C, (A || B) || C, (A -> B) -> C |-');
+});
+
 test('parses a sequent that contains redundant parentheses', () => {
     const s = parse('(A), ((A)), (A && B), (A) && (B), ((A) && (B)), !(A), (!A), (!(!A)) |-');
     expect(s.toString()).toBe('A, A, A && B, A && B, A && B, !A, !A, !!A |-');

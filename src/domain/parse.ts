@@ -31,19 +31,24 @@ const _unary: (tokens: TokenList) => Formula = (tokens: TokenList) => {
 };
 
 const _connective: (tokens: TokenList) => Formula = (tokens: TokenList) => {
-    const f = _unary(tokens);
-    switch (tokens[p].type) {
-        case TokenType.And:
-            p++;
-            return and(f, _unary(tokens));
-        case TokenType.Or:
-            p++;
-            return or(f, _unary(tokens));
-        case TokenType.Imply:
-            p++;
-            return imply(f, _unary(tokens));
-        default:
-            return f;
+    let f = _unary(tokens);
+    while (true) {
+        switch (tokens[p].type) {
+            case TokenType.And:
+                p++;
+                f = and(f, _unary(tokens));
+                break;
+            case TokenType.Or:
+                p++;
+                f = or(f, _unary(tokens));
+                break;
+            case TokenType.Imply:
+                p++;
+                f = imply(f, _unary(tokens));
+                break;
+            default:
+                return f;
+        }
     }
 };
 
