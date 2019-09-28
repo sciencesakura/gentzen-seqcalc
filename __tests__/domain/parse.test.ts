@@ -66,8 +66,8 @@ test('parses a sequent that contains redundant parentheses', () => {
 });
 
 test('failed to parse (unexpected end of input)', () => {
-    expect(() => parse('')).toThrow('unexpected end of input');
-    expect(() => parse('A')).toThrow('unexpected end of input');
-    expect(() => parse('A |- (A &&')).toThrow('unexpected end of input');
-    expect(() => parse('A |- (A && B')).toThrow('unexpected end of input');
+    expect(() => parse('')).toThrow('unexpected end of input (0)');
+    expect(() => parse('A')).toThrow('unexpected end of input (1)');
+    expect(() => parse('A |- (A &&')).toThrow('unexpected end of input (10)');
+    expect(() => parse('A |- (A && B')).toThrow('unexpected end of input (12)');
 });

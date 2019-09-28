@@ -14,12 +14,12 @@ const _term: (tokens: TokenList) => Formula = (tokens: TokenList) => {
     if (token.type === TokenType.ParenOpen) {
         p++;
         const f = _connective(tokens);
-        if (tokens[p].type === TokenType.End) throw new SequentParseError('unexpected end of input');
-        if (tokens[p].type !== TokenType.ParenClose) throw new SequentParseError('unexpected token');
+        if (tokens[p].type === TokenType.End) throw new SequentParseError('unexpected end of input', tokens[p].position);
+        if (tokens[p].type !== TokenType.ParenClose) throw new SequentParseError('unexpected token', tokens[p].position);
         p++;
         return f;
     }
-    throw new SequentParseError(token.type === TokenType.End ? 'unexpected end of input' : 'unexpected token');
+    throw new SequentParseError(token.type === TokenType.End ? 'unexpected end of input' : 'unexpected token', token.position);
 };
 
 const _unary: (tokens: TokenList) => Formula = (tokens: TokenList) => {
@@ -65,8 +65,8 @@ const parse: (str: string) => Sequent = (str: string) => {
     if (tokens[p].type !== TokenType.Tee) {
         antecedents.push(_connective(tokens));
         while (tokens[p].type !== TokenType.Tee) {
-            if (tokens[p].type === TokenType.End) throw new SequentParseError('unexpected end of input');
-            if (tokens[p].type !== TokenType.Comma) throw new SequentParseError('unexpected token');
+            if (tokens[p].type === TokenType.End) throw new SequentParseError('unexpected end of input', tokens[p].position);
+            if (tokens[p].type !== TokenType.Comma) throw new SequentParseError('unexpected token', tokens[p].position);
             p++;
             antecedents.push(_connective(tokens));
         }
@@ -76,7 +76,7 @@ const parse: (str: string) => Sequent = (str: string) => {
     while (tokens[p].type !== TokenType.End) {
         succedents.push(_connective(tokens));
         if (tokens[p].type === TokenType.End) break;
-        if (tokens[p].type !== TokenType.Comma) throw new SequentParseError('unexpected token');
+        if (tokens[p].type !== TokenType.Comma) throw new SequentParseError('unexpected token', tokens[p].position);
         p++;
     }
     return sequent(antecedents, succedents);
