@@ -2,6 +2,7 @@
   "name": "gentzen-seqcalc",
   "version": "1.0.0",
   "description": "An automated propositional logic prover",
+  "homepage": "https://github.com/sciencesakura/gentzen-seqcalc",
   "scripts": {
     "clean": "rimraf ./dist",
     "ts:format": "prettier --write src/**/*.ts __tests__/**/*.ts",
@@ -9,9 +10,14 @@
     "ts:test": "jest",
     "ts:build": "tsc",
     "test": "run-s ts:format ts:lint ts:test",
-    "build": "run-s test ts:build"
+    "build": "run-s clean ts:format ts:lint ts:build",
+    "start": "node dist/presentation/cli.js"
   },
   "author": "sciencesakura",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sciencesakura/gentzen-seqcalc.git"
+  },
   "license": "MIT",
   "devDependencies": {
     "@types/jest": "^24.0.18",
