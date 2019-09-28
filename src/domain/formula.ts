@@ -127,13 +127,15 @@ const not: (a: Formula) => Formula = (a: Formula) => {
  * @return `true` if two formulas are same, `false` otherwise
  */
 const formequ: (a: Formula, b: Formula) => boolean = (a: Formula, b: Formula) => {
-    return (
-        a === b ||
-        (a.atomic && b.atomic && a.identifier === b.identifier) ||
-        (a.operator === b.operator &&
-            formequ(a.operand1!, b.operand2!) &&
-            (a.operator === Operator.Not ? true : formequ(b.operand1!, b.operand2!)))
-    );
+    if (a === b) return true;
+    if (a.atomic && b.atomic) return a.identifier === b.identifier;
+    if (!(a.atomic || b.atomic))
+        return (
+            a.operator === b.operator &&
+            formequ(a.operand1!, b.operand1!) &&
+            (a.operator === Operator.Not ? true : formequ(a.operand2!, b.operand2!))
+        );
+    return false;
 };
 
 export { Formula, Operator, variable, and, or, imply, not, formequ };
