@@ -54,7 +54,7 @@ const variable: (identifier: string) => Formula = (identifier: string) => {
 };
 
 const _paren: (formula: Formula) => string = (formula: Formula) => {
-    return formula.atomic || formula.operator === Operator.Not ? `${formula}` : `(${formula})`;
+    return formula.atomic || formula.operator === Operator.Not ? formula.toString() : `(${formula})`;
 };
 
 const _binconn: (op: Operator, a: Formula, b: Formula) => Formula = (op: Operator, a: Formula, b: Formula) => {

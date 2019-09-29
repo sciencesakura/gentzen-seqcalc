@@ -101,8 +101,7 @@ const _pad: (s: string, len: number) => string = (s: string, len: number) => {
     const padsize = len - s.length;
     if (padsize <= 0) return s;
     const halfsize = Math.floor(padsize / 2);
-    let pad = '';
-    for (let i = 0; i < halfsize; i++) pad += ' ';
+    const pad = times(' ', halfsize);
     return padsize % 2 === 0 ? `${pad}${s}${pad}` : `${pad}${s}${pad} `;
 };
 
