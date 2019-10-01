@@ -1,4 +1,4 @@
-import { Formula } from './formula';
+import { Formula, formequ } from './formula';
 
 /**
  * Represents a sequent.
@@ -34,4 +34,19 @@ const sequent: (antecedents: Formulas, succedents: Formulas) => Sequent = (antec
     };
 };
 
-export { Sequent, sequent };
+/**
+ * Checks whether the specified sequent is an initial sequent.
+ *
+ * @param the sequent to check
+ * @return `true` if the specified sequent is an initial sequent, `false` otherwise
+ */
+const isInitial: (sequence: Sequent) => boolean = (sequent: Sequent) => {
+    for (const i of sequent.antecedents) {
+        for (const j of sequent.succedents) {
+            if (formequ(i, j)) return true;
+        }
+    }
+    return false;
+};
+
+export { Sequent, sequent, isInitial };

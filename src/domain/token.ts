@@ -1,5 +1,4 @@
 import { SequentParseError } from './error';
-import { Operator } from './formula';
 import { isAlpha, isWhiteSpace } from '../util/text';
 
 /**
@@ -60,15 +59,15 @@ const tokenize: (str: string) => TokenList = (str: string) => {
         const c = str[p++];
         if (isWhiteSpace(c)) continue;
         switch (str.substring(position, position + 2)) {
-            case Operator.And:
+            case '&&':
                 tokens.push({ type: TokenType.And, position });
                 p++;
                 continue;
-            case Operator.Or:
+            case '||':
                 tokens.push({ type: TokenType.Or, position });
                 p++;
                 continue;
-            case Operator.Imply:
+            case '->':
                 tokens.push({ type: TokenType.Imply, position });
                 p++;
                 continue;
@@ -87,7 +86,7 @@ const tokenize: (str: string) => TokenList = (str: string) => {
             continue;
         }
         switch (c) {
-            case Operator.Not:
+            case '!':
                 tokens.push({ type: TokenType.Not, position });
                 continue;
             case ',':

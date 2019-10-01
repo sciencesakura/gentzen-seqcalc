@@ -1,37 +1,59 @@
+import { Operator, isUnary } from './operator';
+
 /**
  * Represents a logical formula.
  */
 interface Formula {
-    /** Gets `true` if this formula consists of only one propositional variable, `false` otherwise. */
-    readonly atomic: boolean;
-
-    /** Gets the identifier of the propositional variable if `atomic` is `true`, `undefined` otherwise. */
+    /** Gets the identifier if this formula is a propositional variable, `undefined` otherwise. */
     readonly identifier?: string;
 
-    /** Gets the operator if `atomic` is `false`, `undefined` otherwise. */
+    /** Gets the operator if this formula is a compound formula, `undefined` otherwise. */
     readonly operator?: Operator;
 
-    /** Gets the first operand if `atomic` is `false`, `undefined` otherwise. */
+    /** Gets the first operand if this formula is a compound formula, `undefined` otherwise. */
     readonly operand1?: Formula;
 
-    /** Gets the second operand if `atomic` is `false` and `operator` is binary operator, `undefined` otherwise. */
+    /** Gets the second operand if this formula is a compound formula and the operator is binary, `undefined` otherwise. */
     readonly operand2?: Formula;
 }
 
 /**
- * Represents a logical operator.
+ * Represents a propositional variable.
  */
-enum Operator {
-    And = '&&',
-
-    Or = '||',
-
-    Imply = '->',
-
-    Not = '!'
+interface Variable extends Formula {
+    /** Gets the identifier. */
+    readonly identifier: string;
 }
 
-const _varcache = new Map<string, Formula>();
+/**
+ * Represents a compound formula.
+ */
+interface CompoundFormula extends Formula {
+    /** Gets the operator. */
+    readonly operator: Operator;
+}
+
+/**
+ * Represents a unary connective.
+ */
+interface UnaryConnective extends CompoundFormula {
+    /** Gets the first operand. */
+    readonly operand1: Formula;
+}
+
+/**
+ * Represents a binary connective.
+ */
+interface BinaryConnective extends CompoundFormula {
+    /** Gets the first operand. */
+    readonly operand1: Formula;
+
+    /** Gets the second operand. */
+    readonly operand2: Formula;
+}
+
+// the variable cache
+const varcache = new Map<string, Variable>();
 
 /**
  * Returns the formula that consists of only one propositional variable.
@@ -39,8 +61,8 @@ const _varcache = new Map<string, Formula>();
  * @param identifier the identifier of the propositional variable
  * @return the formula that consists of only one propositional variable
  */
-const variable: (identifier: string) => Formula = (identifier: string) => {
-    const cache = _varcache.get(identifier);
+const variable: (identifier: string) => Variable = (identifier: string) => {
+    const cache = varcache.get(identifier);
     if (cache) return cache;
     const v = {
         atomic: true,
@@ -49,22 +71,27 @@ const variable: (identifier: string) => Formula = (identifier: string) => {
             return this.identifier;
         }
     };
-    _varcache.set(identifier, v);
+    varcache.set(identifier, v);
     return v;
 };
 
-const _paren: (formula: Formula) => string = (formula: Formula) => {
-    return formula.atomic || formula.operator === Operator.Not ? formula.toString() : `(${formula})`;
-};
-
-const _binconn: (op: Operator, a: Formula, b: Formula) => Formula = (op: Operator, a: Formula, b: Formula) => {
+/**
+ * Returns the binary connective formula.
+ */
+const binaryConnective: (operator: Operator, operand1: Formula, operand2: Formula) => BinaryConnective = (
+    operator: Operator,
+    operand1: Formula,
+    operand2: Formula
+) => {
     return {
         atomic: false,
-        operator: op,
-        operand1: a,
-        operand2: b,
+        operator,
+        operand1,
+        operand2,
         toString(): string {
-            return `${_paren(this.operand1!)} ${this.operator} ${_paren(this.operand2!)}`;
+            const opd1 = isAtomic(this.operand1) || isUnary(this.operand1.operator!) ? this.operand1 : `(${this.operand1})`;
+            const opd2 = isAtomic(this.operand2) || isUnary(this.operand2.operator!) ? this.operand2 : `(${this.operand2})`;
+            return `${opd1} ${this.operator} ${opd2}`;
         }
     };
 };
@@ -76,8 +103,8 @@ const _binconn: (op: Operator, a: Formula, b: Formula) => Formula = (op: Operato
  * @param b the second operand
  * @return the formula that means `a && b`
  */
-const and: (a: Formula, b: Formula) => Formula = (a: Formula, b: Formula) => {
-    return _binconn(Operator.And, a, b);
+const and: (a: Formula, b: Formula) => BinaryConnective = (a: Formula, b: Formula) => {
+    return binaryConnective(Operator.And, a, b);
 };
 
 /**
@@ -87,8 +114,8 @@ const and: (a: Formula, b: Formula) => Formula = (a: Formula, b: Formula) => {
  * @param b the second operand
  * @return the formula that means `a || b`
  */
-const or: (a: Formula, b: Formula) => Formula = (a: Formula, b: Formula) => {
-    return _binconn(Operator.Or, a, b);
+const or: (a: Formula, b: Formula) => BinaryConnective = (a: Formula, b: Formula) => {
+    return binaryConnective(Operator.Or, a, b);
 };
 
 /**
@@ -98,8 +125,8 @@ const or: (a: Formula, b: Formula) => Formula = (a: Formula, b: Formula) => {
  * @param b the second operand
  * @return the formula that means `a -> b`
  */
-const imply: (a: Formula, b: Formula) => Formula = (a: Formula, b: Formula) => {
-    return _binconn(Operator.Imply, a, b);
+const imply: (a: Formula, b: Formula) => BinaryConnective = (a: Formula, b: Formula) => {
+    return binaryConnective(Operator.Imply, a, b);
 };
 
 /**
@@ -108,34 +135,53 @@ const imply: (a: Formula, b: Formula) => Formula = (a: Formula, b: Formula) => {
  * @param a the operand
  * @return the formula that means `!a`
  */
-const not: (a: Formula) => Formula = (a: Formula) => {
+const not: (a: Formula) => UnaryConnective = (a: Formula) => {
     return {
         atomic: false,
         operator: Operator.Not,
         operand1: a,
         toString(): string {
-            return `!${_paren(this.operand1!)}`;
+            const opd = isAtomic(this.operand1) || isUnary(this.operand1.operator!) ? this.operand1 : `(${this.operand1})`;
+            return `!${opd}`;
         }
     };
 };
 
 /**
- * Provides an equivalence relation of formulas.
+ * Checks whether the specified formula is an atomic formula or not.
+ *
+ * @param formula the formula to check
+ * @return `true` if the specified formula is an atomic formula, `false` otherwise
+ */
+const isAtomic = (formula: Formula): formula is Variable => {
+    return formula.operator === undefined;
+};
+
+/**
+ * Checks whether the specified formula is a compound formula or not.
+ *
+ * @param formula the formula to check
+ * @return `true` if the specified formula is a compound formula, `false` otherwise
+ */
+const isCompound = (formula: Formula): formula is CompoundFormula => {
+    return formula.operator !== undefined;
+};
+
+/**
+ * Checks whether the specified two formulas are same or not.
  *
  * @param a the formula to compare
  * @param b the formula to compare
- * @return `true` if two formulas are same, `false` otherwise
+ * @return `true` if the specified two formulas are same, `false` otherwise
  */
 const formequ: (a: Formula, b: Formula) => boolean = (a: Formula, b: Formula) => {
     if (a === b) return true;
-    if (a.atomic && b.atomic) return a.identifier === b.identifier;
-    if (!(a.atomic || b.atomic))
-        return (
-            a.operator === b.operator &&
-            formequ(a.operand1!, b.operand1!) &&
-            (a.operator === Operator.Not ? true : formequ(a.operand2!, b.operand2!))
-        );
+    if (isAtomic(a) && isAtomic(b)) return a.identifier === b.identifier;
+    if (isCompound(a) && isCompound(b) && a.operator === b.operator) {
+        const equOpd1 = formequ(a.operand1!, b.operand1!);
+        return isUnary(a.operator) ? equOpd1 : equOpd1 && formequ(a.operand2!, b.operand2!);
+    }
     return false;
 };
 
-export { Formula, Operator, variable, and, or, imply, not, formequ };
+export { Formula, variable, and, or, imply, not, isAtomic, isCompound, formequ };
