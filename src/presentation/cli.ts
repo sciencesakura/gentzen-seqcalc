@@ -1,4 +1,5 @@
 import * as readline from 'readline';
+import { red, underline } from 'colors/safe';
 import { SequentParseError } from '../domain/error';
 import { parse } from '../domain/parse';
 import { prove } from '../domain/proof';
@@ -10,7 +11,7 @@ const rl = readline.createInterface({
 });
 
 console.log('Input a sequent to prove.');
-console.log('Type :h for help, :q for quit');
+console.log('Type :q for quit');
 rl.prompt();
 
 rl.on('line', line => {
@@ -21,15 +22,12 @@ rl.on('line', line => {
     }
     if (trimed.startsWith(':')) {
         switch (line.trim()) {
-            case ':h':
-                //TODO
-                break;
             case ':q':
                 rl.close();
                 return;
             default:
                 console.error('unknown command');
-                console.log('Type :h for help, :q for quit');
+                console.log('Type :q for quit');
         }
         rl.prompt();
         return;
@@ -48,10 +46,14 @@ rl.on('line', line => {
             console.log('This sequent is unprovable.');
         }
     } catch (e) {
-        console.error(e.toString());
+        console.error(red(e.toString()));
         if (e instanceof SequentParseError) {
-            console.error(line);
-            console.error(`${times(' ', e.position)}^`);
+            if (line.length === e.position) {
+                console.error(red(line));
+            } else {
+                console.error(red(line.slice(0, e.position) + underline(line[e.position]) + line.slice(e.position + 1)));
+            }
+            console.error(times(' ', e.position) + red('^'));
         } else {
             console.error(e);
         }
