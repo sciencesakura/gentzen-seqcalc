@@ -105,4 +105,4 @@ const tokenize: (str: string) => TokenList = (str: string) => {
     return tokens;
 };
 
-export { Token, TokenType, TokenList, tokenize };
+export { TokenType, TokenList, tokenize };

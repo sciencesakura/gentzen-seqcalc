@@ -5,7 +5,7 @@ import { TokenType, TokenList, tokenize } from './token';
 
 let p: number;
 
-const _term: (tokens: TokenList) => Formula = (tokens: TokenList) => {
+const term: (tokens: TokenList) => Formula = (tokens: TokenList) => {
     const token = tokens[p];
     if (token.type === TokenType.Variable) {
         p++;
@@ -13,7 +13,7 @@ const _term: (tokens: TokenList) => Formula = (tokens: TokenList) => {
     }
     if (token.type === TokenType.ParenOpen) {
         p++;
-        const f = _connective(tokens);
+        const f = binary(tokens);
         if (tokens[p].type === TokenType.End) throw new SequentParseError('unexpected end of input', tokens[p].position);
         if (tokens[p].type !== TokenType.ParenClose) throw new SequentParseError('unexpected token', tokens[p].position);
         p++;
@@ -22,29 +22,29 @@ const _term: (tokens: TokenList) => Formula = (tokens: TokenList) => {
     throw new SequentParseError(token.type === TokenType.End ? 'unexpected end of input' : 'unexpected token', token.position);
 };
 
-const _unary: (tokens: TokenList) => Formula = (tokens: TokenList) => {
+const unary: (tokens: TokenList) => Formula = (tokens: TokenList) => {
     if (tokens[p].type === TokenType.Not) {
         p++;
-        return not(_unary(tokens));
+        return not(unary(tokens));
     }
-    return _term(tokens);
+    return term(tokens);
 };
 
-const _connective: (tokens: TokenList) => Formula = (tokens: TokenList) => {
-    let f = _unary(tokens);
+const binary: (tokens: TokenList) => Formula = (tokens: TokenList) => {
+    let f = unary(tokens);
     while (true) {
         switch (tokens[p].type) {
             case TokenType.And:
                 p++;
-                f = and(f, _unary(tokens));
+                f = and(f, unary(tokens));
                 break;
             case TokenType.Or:
                 p++;
-                f = or(f, _unary(tokens));
+                f = or(f, unary(tokens));
                 break;
             case TokenType.Imply:
                 p++;
-                f = imply(f, _unary(tokens));
+                f = imply(f, unary(tokens));
                 break;
             default:
                 return f;
@@ -63,18 +63,18 @@ const parse: (str: string) => Sequent = (str: string) => {
     p = 0;
     const antecedents = new Array<Formula>();
     if (tokens[p].type !== TokenType.Tee) {
-        antecedents.push(_connective(tokens));
+        antecedents.push(binary(tokens));
         while (tokens[p].type !== TokenType.Tee) {
             if (tokens[p].type === TokenType.End) throw new SequentParseError('unexpected end of input', tokens[p].position);
             if (tokens[p].type !== TokenType.Comma) throw new SequentParseError('unexpected token', tokens[p].position);
             p++;
-            antecedents.push(_connective(tokens));
+            antecedents.push(binary(tokens));
         }
     }
     p++;
     const succedents = new Array<Formula>();
     while (tokens[p].type !== TokenType.End) {
-        succedents.push(_connective(tokens));
+        succedents.push(binary(tokens));
         if (tokens[p].type === TokenType.End) break;
         if (tokens[p].type !== TokenType.Comma) throw new SequentParseError('unexpected token', tokens[p].position);
         p++;

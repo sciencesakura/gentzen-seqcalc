@@ -61,7 +61,7 @@ const decompose: (sequent: Sequent) => [Sequent, Sequent?] | null = (sequent: Se
     return rule(sequent, position);
 };
 
-const _pad: (s: string, len: number) => string = (s: string, len: number) => {
+const pad: (s: string, len: number) => string = (s: string, len: number) => {
     const padsize = len - s.length;
     if (padsize <= 0) return s;
     const halfsize = Math.floor(padsize / 2);
@@ -69,32 +69,32 @@ const _pad: (s: string, len: number) => string = (s: string, len: number) => {
     return padsize % 2 === 0 ? `${pad}${s}${pad}` : `${pad}${s}${pad} `;
 };
 
-const _tostr: (node: ProofTreeNode) => Array<string> = (node: ProofTreeNode) => {
+const toStringArray: (node: ProofTreeNode) => Array<string> = (node: ProofTreeNode) => {
     const sequent = node.sequent.toString();
     if (!node.left) return [sequent];
-    const left = _tostr(node.left);
+    const left = toStringArray(node.left);
     const lwidth = left[0].length;
     if (node.right) {
-        const right = _tostr(node.right);
+        const right = toStringArray(node.right);
         const rwidth = right[0].length;
         const width = Math.max(sequent.length, lwidth + rwidth + 2);
-        const sqary = [_pad(sequent, width), times('-', width)];
+        const sqary = [pad(sequent, width), times('-', width)];
         const childHeight = Math.max(left.length, right.length);
         for (let i = 0; i < childHeight; i++) {
             const ls = left[i];
             const rs = right[i];
             if (ls && rs) {
-                sqary.push(_pad(`${ls}  ${rs}`, width));
+                sqary.push(pad(`${ls}  ${rs}`, width));
             } else if (ls) {
-                sqary.push(_pad(`${ls}  ${times(' ', rwidth)}`, width));
+                sqary.push(pad(`${ls}  ${times(' ', rwidth)}`, width));
             } else {
-                sqary.push(_pad(`${times(' ', lwidth)}  ${rs}`, width));
+                sqary.push(pad(`${times(' ', lwidth)}  ${rs}`, width));
             }
         }
         return sqary;
     } else {
         const width = Math.max(sequent.length, lwidth);
-        return [_pad(sequent, width), times('-', width), ...left.map(s => _pad(s, width))];
+        return [pad(sequent, width), times('-', width), ...left.map(s => pad(s, width))];
     }
 };
 
@@ -138,7 +138,7 @@ const prove: (sequent: Sequent) => Proof = (sequent: Sequent) => {
                 height: maxLv + 1,
                 root,
                 toString(): string {
-                    return _tostr(this.root)
+                    return toStringArray(this.root)
                         .reverse()
                         .join('\n');
                 }
