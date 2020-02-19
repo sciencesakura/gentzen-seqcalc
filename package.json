@@ -20,19 +20,18 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@types/jest": "^24.0.18",
-    "@types/node": "^12.7.5",
-    "@typescript-eslint/eslint-plugin": "^2.3.0",
-    "@typescript-eslint/parser": "^2.3.0",
-    "eslint": "^6.4.0",
-    "eslint-config-prettier": "^6.3.0",
-    "jest": "^24.9.0",
+    "@types/jest": "^25.1.2",
+    "@types/node": "^13.7.2",
+    "@typescript-eslint/eslint-plugin": "^2.20.0",
+    "@typescript-eslint/parser": "^2.20.0",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.10.0",
+    "jest": "^25.1.0",
     "npm-run-all": "^4.1.5",
-    "prettier": "^1.18.2",
-    "rimraf": "^3.0.0",
-    "ts-jest": "^24.1.0",
-    "typescript": "^3.6.3",
-    "typescript-language-server": "^0.4.0"
+    "prettier": "^1.19.1",
+    "rimraf": "^3.0.2",
+    "ts-jest": "^25.2.1",
+    "typescript": "^3.7.5"
   },
   "dependencies": {
     "colors": "^1.4.0"
