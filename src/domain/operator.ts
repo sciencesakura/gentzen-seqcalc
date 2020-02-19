@@ -2,13 +2,13 @@
  * Represents a logical operator.
  */
 enum Operator {
-    And = '&&',
+  And = '&&',
 
-    Or = '||',
+  Or = '||',
 
-    Imply = '->',
+  Imply = '->',
 
-    Not = '!'
+  Not = '!'
 }
 
 /**
@@ -18,7 +18,7 @@ enum Operator {
  * @return `true` if the specified operator is unary, `false` otherwise
  */
 const isUnary: (operator: Operator) => boolean = (operator: Operator) => {
-    return operator === Operator.Not;
+  return operator === Operator.Not;
 };
 
 /*
@@ -28,7 +28,7 @@ const isUnary: (operator: Operator) => boolean = (operator: Operator) => {
  * @return `true` if the specified operator is binary, `false` otherwise
  */
 const isBinary: (operator: Operator) => boolean = (operator: Operator) => {
-    return operator !== Operator.Not;
+  return operator !== Operator.Not;
 };
 
 export { Operator, isUnary, isBinary };

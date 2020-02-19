@@ -5,7 +5,7 @@
  * @param `true` if the specified character is white-space character, `false` otherwise
  */
 const isWhiteSpace: (c: string) => boolean = (c: string) => {
-    return c === ' ' || c === '\t' || c === '\n' || c === '\v' || c === '\f' || c === '\r';
+  return c === ' ' || c === '\t' || c === '\n' || c === '\v' || c === '\f' || c === '\r';
 };
 
 /**
@@ -15,8 +15,8 @@ const isWhiteSpace: (c: string) => boolean = (c: string) => {
  * @return `true` if the specified character is an alphabet letter, `false` otherwise
  */
 const isAlpha: (c: string) => boolean = (c: string) => {
-    const code = c.codePointAt(0)!;
-    return (0x0041 <= code && code <= 0x005a) || (0x0061 <= code && code <= 0x007a);
+  const code = c.codePointAt(0)!;
+  return (0x0041 <= code && code <= 0x005a) || (0x0061 <= code && code <= 0x007a);
 };
 
 /**
@@ -27,9 +27,9 @@ const isAlpha: (c: string) => boolean = (c: string) => {
  * @return the string composed of repeatition
  */
 const times: (s: string, n: number) => string = (s: string, n: number) => {
-    let str = '';
-    for (let i = 0; i < n; i++) str += s;
-    return str;
+  let str = '';
+  for (let i = 0; i < n; i++) str += s;
+  return str;
 };
 
 export { isWhiteSpace, isAlpha, times };

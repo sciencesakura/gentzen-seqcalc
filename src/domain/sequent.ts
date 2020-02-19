@@ -4,11 +4,11 @@ import { Formula, formequ } from './formula';
  * Represents a sequent.
  */
 interface Sequent {
-    /** Gets the formula sequence for antecedents. */
-    readonly antecedents: Formulas;
+  /** Gets the formula sequence for antecedents. */
+  readonly antecedents: Formulas;
 
-    /** Gets the formula sequence for succedents. */
-    readonly succedents: Formulas;
+  /** Gets the formula sequence for succedents. */
+  readonly succedents: Formulas;
 }
 
 /**
@@ -24,14 +24,14 @@ type Formulas = ReadonlyArray<Formula>;
  * @return the new sequent
  */
 const sequent: (antecedents: Formulas, succedents: Formulas) => Sequent = (antecedents: Formulas, succedents: Formulas) => {
-    return {
-        antecedents,
-        succedents,
-        toString(): string {
-            const s1 = this.antecedents.length === 0 ? '|-' : `${this.antecedents.join(', ')} |-`;
-            return this.succedents.length === 0 ? s1 : `${s1} ${this.succedents.join(', ')}`;
-        }
-    };
+  return {
+    antecedents,
+    succedents,
+    toString(): string {
+      const s1 = this.antecedents.length === 0 ? '|-' : `${this.antecedents.join(', ')} |-`;
+      return this.succedents.length === 0 ? s1 : `${s1} ${this.succedents.join(', ')}`;
+    }
+  };
 };
 
 /**
@@ -41,12 +41,12 @@ const sequent: (antecedents: Formulas, succedents: Formulas) => Sequent = (antec
  * @return `true` if the specified sequent is an initial sequent, `false` otherwise
  */
 const isInitial: (sequence: Sequent) => boolean = (sequent: Sequent) => {
-    for (const i of sequent.antecedents) {
-        for (const j of sequent.succedents) {
-            if (formequ(i, j)) return true;
-        }
+  for (const i of sequent.antecedents) {
+    for (const j of sequent.succedents) {
+      if (formequ(i, j)) return true;
     }
-    return false;
+  }
+  return false;
 };
 
 export { Sequent, sequent, isInitial };
