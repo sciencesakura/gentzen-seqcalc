@@ -1,4 +1,4 @@
-import { variable, and, or, imply, not } from '../../src/domain/formula';
+import { variable, and, or, imply, not } from '../../src/ts/domain/formula';
 
 test('constructs a formula: `A`', () => {
     const a = variable('A');

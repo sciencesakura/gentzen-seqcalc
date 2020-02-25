@@ -1,6 +1,6 @@
-import { variable, and, or, imply, not } from '../../src/domain/formula';
-import { prove } from '../../src/domain/proof';
-import { sequent } from '../../src/domain/sequent';
+import { variable, and, or, imply, not } from '../../src/ts/domain/formula';
+import { prove } from '../../src/ts/domain/proof';
+import { sequent } from '../../src/ts/domain/sequent';
 
 const a = variable('A');
 const b = variable('B');

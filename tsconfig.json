@@ -7,9 +7,9 @@
     "module": "commonjs",
     "outDir": "dist",
     "removeComments": true,
-    "rootDir": "src",
+    "rootDir": "src/ts",
     "strict": true,
     "target": "es2018"
   },
-  "include": ["src/**/*"]
+  "include": ["src/ts/**/*"]
 }

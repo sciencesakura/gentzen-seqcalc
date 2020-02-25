@@ -1,5 +1,5 @@
-import { variable, and, or } from '../../src/domain/formula';
-import { sequent } from '../../src/domain/sequent';
+import { variable, and, or } from '../../src/ts/domain/formula';
+import { sequent } from '../../src/ts/domain/sequent';
 
 const a = variable('A');
 const b = variable('B');

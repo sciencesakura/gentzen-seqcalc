@@ -1,4 +1,4 @@
-import { parse } from '../../src/domain/parse';
+import { parse } from '../../src/ts/domain/parse';
 
 test('parses a sequent: `A |- A`', () => {
     const s = parse('A |- A');
