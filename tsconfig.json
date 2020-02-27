@@ -3,13 +3,10 @@
     "allowJs": true,
     "downlevelIteration": true,
     "esModuleInterop": true,
-    "lib": ["es2018"],
-    "module": "commonjs",
-    "outDir": "dist",
+    "lib": ["es2018", "dom"],
+    "module": "es2015",
     "removeComments": true,
-    "rootDir": "src/ts",
     "strict": true,
-    "target": "es2018"
-  },
-  "include": ["src/ts/**/*"]
+    "target": "es5"
+  }
 }

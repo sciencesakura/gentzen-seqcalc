@@ -149,4 +149,4 @@ const prove: (sequent: Sequent) => Proof = (sequent: Sequent) => {
   }
 };
 
-export { Proof, prove };
+export { Proof, ProofTree, prove };
