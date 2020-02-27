@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>gentzen-seqcalc</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css" />
+    <script defer="defer" src="./js/app.js"></script>
+  </head>
+  <body>
+    <header class="hero is-primary">
+      <div class="hero-body">
+        <h1 class="title">gentzen-seqcalc</h1>
+        <h2 class="sub-title">シークエント計算による証明図自動生成器</h2>
+      </div>
+    </header>
+    <section class="section">
+      <div class="field">
+        <label class="label" for="sequent-area">証明する式</label>
+        <div class="control">
+          <textarea
+            id="sequent-area"
+            class="textarea"
+            rows="4"
+            required="required"
+            placeholder="!(A && B) |- !A || !B"
+          ></textarea>
+        </div>
+      </div>
+      <div class="field is-grouped">
+        <div class="control"><button id="btn-prove" class="button is-primary" type="button">証明</button></div>
+        <div class="control"><button id="btn-clear" class="button" type="button">クリア</button></div>
+      </div>
+      <div id="message" class="message is-danger is-hidden">
+        <p class="message-header">Error</p>
+        <p class="message-body"></p>
+      </div>
+      <div id="proof-figure" class="field is-hidden">
+        <label class="label" for="proof-figure-area">証明図</label>
+        <div class="control">
+          <textarea id="proof-figure-area" class="textarea" readonly="readonly"></textarea>
+        </div>
+      </div>
+    </section>
+  </body>
+</html>

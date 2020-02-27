@@ -1,0 +1,9 @@
+{
+  "collapseWhitespace": true,
+  "keepClosingSlash": true,
+  "preserveLineBreaks": true,
+  "removeComments": true,
+  "removeRedundantAttributes": true,
+  "sortAttributes": true,
+  "sortClassName": true
+}
