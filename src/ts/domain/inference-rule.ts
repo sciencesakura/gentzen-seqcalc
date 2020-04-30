@@ -25,7 +25,7 @@ const andR: InferenceRule = (s: Sequent, position: number) => {
   const right = s.succedents.slice(position + 1);
   return [
     sequent(s.antecedents, [...left, principal.operand1!, ...right]),
-    sequent(s.antecedents, [...left, principal.operand2!, ...right])
+    sequent(s.antecedents, [...left, principal.operand2!, ...right]),
   ];
 };
 
@@ -38,7 +38,7 @@ const orL: InferenceRule = (s: Sequent, position: number) => {
   const right = s.antecedents.slice(position + 1);
   return [
     sequent([...left, principal.operand1!, ...right], s.succedents),
-    sequent([...left, principal.operand2!, ...right], s.succedents)
+    sequent([...left, principal.operand2!, ...right], s.succedents),
   ];
 };
 
@@ -61,7 +61,7 @@ const implyL: InferenceRule = (s: Sequent, position: number) => {
   const right = s.antecedents.slice(position + 1);
   return [
     sequent([...left, ...right], [...s.succedents, principal.operand1!]),
-    sequent([...left, principal.operand2!, ...right], s.succedents)
+    sequent([...left, principal.operand2!, ...right], s.succedents),
   ];
 };
 
@@ -99,14 +99,14 @@ const LEFT_RULES: ReadonlyMap<Operator, InferenceRule> = new Map<Operator, Infer
   [Operator.And, andL],
   [Operator.Or, orL],
   [Operator.Imply, implyL],
-  [Operator.Not, notL]
+  [Operator.Not, notL],
 ]);
 
 const RIGHT_RULES: ReadonlyMap<Operator, InferenceRule> = new Map<Operator, InferenceRule>([
   [Operator.And, andR],
   [Operator.Or, orR],
   [Operator.Imply, implyR],
-  [Operator.Not, notR]
+  [Operator.Not, notR],
 ]);
 
 /**

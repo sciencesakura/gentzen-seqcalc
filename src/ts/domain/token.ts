@@ -37,7 +37,7 @@ enum TokenType {
 
   Tee,
 
-  End
+  End,
 }
 
 /**
@@ -81,7 +81,7 @@ const tokenize: (str: string) => TokenList = (str: string) => {
       tokens.push({
         type: TokenType.Variable,
         position,
-        identifier: str.substring(position, p)
+        identifier: str.substring(position, p),
       });
       continue;
     }

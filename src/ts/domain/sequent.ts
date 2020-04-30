@@ -30,7 +30,7 @@ const sequent: (antecedents: Formulas, succedents: Formulas) => Sequent = (antec
     toString(): string {
       const s1 = this.antecedents.length === 0 ? '|-' : `${this.antecedents.join(', ')} |-`;
       return this.succedents.length === 0 ? s1 : `${s1} ${this.succedents.join(', ')}`;
-    }
+    },
   };
 };
 

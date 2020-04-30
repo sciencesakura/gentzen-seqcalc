@@ -94,7 +94,7 @@ const toStringArray: (node: ProofTreeNode) => Array<string> = (node: ProofTreeNo
     return sqary;
   } else {
     const width = Math.max(sequent.length, lwidth);
-    return [pad(sequent, width), times('-', width), ...left.map(s => pad(s, width))];
+    return [pad(sequent, width), times('-', width), ...left.map((s) => pad(s, width))];
   }
 };
 
@@ -120,13 +120,13 @@ const prove: (sequent: Sequent) => Proof = (sequent: Sequent) => {
         level,
         sequent: s,
         left: makeTree(decomposed[0], level + 1),
-        right: makeTree(decomposed[1], level + 1)
+        right: makeTree(decomposed[1], level + 1),
       };
     } else {
       return {
         level,
         sequent: s,
-        left: makeTree(decomposed[0], level + 1)
+        left: makeTree(decomposed[0], level + 1),
       };
     }
   };
@@ -138,11 +138,9 @@ const prove: (sequent: Sequent) => Proof = (sequent: Sequent) => {
         height: maxLv + 1,
         root,
         toString(): string {
-          return toStringArray(this.root)
-            .reverse()
-            .join('\n');
-        }
-      }
+          return toStringArray(this.root).reverse().join('\n');
+        },
+      },
     };
   } else {
     return { provable };

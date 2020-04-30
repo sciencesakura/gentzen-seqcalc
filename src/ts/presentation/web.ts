@@ -25,7 +25,7 @@ const hideError: () => void = () => {
   const message = document.getElementById('message')!;
   message.querySelector('.message-body')!.textContent = '';
   message.classList.add('is-hidden');
-  document.querySelectorAll('textarea.is-danger').forEach(e => {
+  document.querySelectorAll('textarea.is-danger').forEach((e) => {
     e.classList.remove('is-danger');
   });
 };

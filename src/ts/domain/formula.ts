@@ -69,7 +69,7 @@ const variable: (identifier: string) => Variable = (identifier: string) => {
     identifier,
     toString(): string {
       return this.identifier;
-    }
+    },
   };
   varcache.set(identifier, v);
   return v;
@@ -92,7 +92,7 @@ const binaryConnective: (operator: Operator, operand1: Formula, operand2: Formul
       const opd1 = isAtomic(this.operand1) || isUnary(this.operand1.operator!) ? this.operand1 : `(${this.operand1})`;
       const opd2 = isAtomic(this.operand2) || isUnary(this.operand2.operator!) ? this.operand2 : `(${this.operand2})`;
       return `${opd1} ${this.operator} ${opd2}`;
-    }
+    },
   };
 };
 
@@ -143,7 +143,7 @@ const not: (a: Formula) => UnaryConnective = (a: Formula) => {
     toString(): string {
       const opd = isAtomic(this.operand1) || isUnary(this.operand1.operator!) ? this.operand1 : `(${this.operand1})`;
       return `!${opd}`;
-    }
+    },
   };
 };
 

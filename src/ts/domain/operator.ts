@@ -8,7 +8,7 @@ enum Operator {
 
   Imply = '->',
 
-  Not = '!'
+  Not = '!',
 }
 
 /**
