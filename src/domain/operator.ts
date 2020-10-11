@@ -1,34 +1,40 @@
 /**
  * Represents a logical operator.
  */
-enum Operator {
-    And = '&&',
-
-    Or = '||',
-
-    Imply = '->',
-
-    Not = '!'
-}
+export const Operator = ["And", "Or", "Imply", "Not"] as const;
+export type Operator = typeof Operator[number];
 
 /**
  * Checks wether the specified operator is an unary operator or not.
  *
- * @param operator the operator to check
- * @return `true` if the specified operator is unary, `false` otherwise
+ * @param o the operator to check
+ * @returns `true` if the specified operator is unary, `false` otherwise
  */
-const isUnary: (operator: Operator) => boolean = (operator: Operator) => {
-    return operator === Operator.Not;
-};
+export const isUnary = (o: Operator): o is "Not" => o === "Not";
 
-/*
+/**
  * Checks wether the specified operator is a binary operator or not.
  *
- * @param operator the operator to check
- * @return `true` if the specified operator is binary, `false` otherwise
+ * @param o the operator to check
+ * @returns `true` if the specified operator is binary, `false` otherwise
  */
-const isBinary: (operator: Operator) => boolean = (operator: Operator) => {
-    return operator !== Operator.Not;
-};
+export const isBinary = (o: Operator): o is "And" | "Or" | "Imply" => o !== "Not";
 
-export { Operator, isUnary, isBinary };
+/**
+ * Returns a string representation.
+ *
+ * @param o the operator to string
+ * @returns the string representation
+ */
+export const toString: (o: Operator) => string = (o: Operator) => {
+  switch (o) {
+    case "And":
+      return "&&";
+    case "Or":
+      return "||";
+    case "Imply":
+      return "->";
+    case "Not":
+      return "!";
+  }
+};

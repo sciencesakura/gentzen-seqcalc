@@ -1,22 +1,20 @@
+root: true
 env:
-  es6: true
   node: true
-extends:
-  - "eslint:recommended"
-  - "plugin:@typescript-eslint/eslint-recommended"
-  - "plugin:@typescript-eslint/recommended"
-  - "plugin:@typescript-eslint/recommended-requiring-type-checking"
-  - "prettier"
+  jest: true
 parser: "@typescript-eslint/parser"
 parserOptions:
   ecmaVersion: 2018
-  project: "tsconfig.json"
   sourceType: "module"
 plugins:
   - "@typescript-eslint"
+extends:
+  - "eslint:recommended"
+  - "plugin:@typescript-eslint/recommended"
+  - "prettier"
+  - "prettier/@typescript-eslint"
 rules:
   "no-constant-condition":
     - "error"
     - checkLoops: false
   "@typescript-eslint/no-non-null-assertion": 0
-  "@typescript-eslint/no-use-before-define": 0
